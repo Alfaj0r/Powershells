@@ -12,7 +12,7 @@
 	.NOTES
 		Revision History
 		Version		Author			Description		Date
-		1.0			Nico Aguilera	Initial Script	3/8/2017
+		1.0			Nico Aguilera	Initial Script	3/9/2017
 #>
 
 #Region Set Parameters 
