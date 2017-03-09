@@ -14,6 +14,7 @@
 		Version		Author			Description		Date
 		1.0			Nico Aguilera	Initial Script	3/9/2017
 #>
+#bla bla blah 
 
 #Region Set Parameters 
 	param(
@@ -129,7 +130,7 @@ Try {
 		Write-Host
 		
 		#Region ScriptWork
-			$CSV = import-csv $ServerListCSV
+			$CSV = get-content $ServerListCSV
 			
 			foreach ($Machine in $CSV) {
 				OutputValidationLine -Label "     Connecting to Server: " -Tab -Result $Machine.HostName
