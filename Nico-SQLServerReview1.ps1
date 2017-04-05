@@ -4,17 +4,18 @@
 write-host "**********************************************************"
 $now = Get-Date  # log the current date/time
 write-host "SQL Server Review script started on "  $now  # write it
+write-host "**********************************************************"
 
 ## Step1: collect
 
 # Server basic info
-$ServerBasicInfo = Get-WmiObject -query "select * from Win32_ComputerSystem" | select Name, Model, Manufacturer, DNSHostName, Domain, PartOfDomain
+$ServerBasicInfo = Get-WmiObject -query "select * from Win32_ComputerSystem" | select Name, DNSHostName, Domain, PartOfDomain, Manufacturer, Model
 
 # Server hardware specs: 
 #CPU
 $CPU_count = Get-WmiObject win32_computersystem | select-object NumberOfProcessors
 $CPU_cores= Get-WmiObject win32_processor | Format-List NumberOfCores
-$CPU_threads = Get-WmiObject win32_processor | Format-List NumberOfLogicalProcessors
+$CPU_threads = ((Get-WmiObject Win32_Processor)| Measure-Object NumberOfCores -sum).sum 
 
 #RAM
 $totalmemory = Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum | Foreach {"{0:N2}" -f ([math]::round(($_.Sum / 1GB),2))}
@@ -44,8 +45,8 @@ $OSServicePack = $systemOS.ServicePackMajorVersion
 $LocalDrives = Get-WmiObject -Class Win32_Volume -Filter "DriveType=3"
 foreach ($drive in $LocalDrives) {
     
-    $AUS = GetDiskAllocUnitSizeKB $drive.driveletter.substring(0,1) # only want the drive letter, not the colon
-    write-host "Drive" $drive.driveletter "(" $drive.label       ") has a block size of" $AUS "KB"
+    $AllocUnitSize = GetDiskAllocUnitSizeKB $drive.driveletter.substring(0,1) # only want the drive letter, not the colon
+    write-host "Drive" $drive.driveletter "(" $drive.label       ") has a block size of" $AllocUnitSize "KB"
     
     write-host "Disk size:" ([Math]::round($drive.capacity /1073741824)) "GB"
     write-host "Disk free space:" ([Math]::round($drive.freespace /1073741824)) "GB"
@@ -91,11 +92,13 @@ foreach ($drive in $LocalDrives) {
 
 
 ## Step3: Output
-Write-Host "************* System Info collected:       *****************"
+Write-Host "************* System Info collected:  ********************"
 
 
+write-host "**********************************************************"
 Write-Host "***Server Info:"
 $ServerBasicInfo
+write-host "**********************************************************"
 
 Write-Host "***Processor and Memory Info:"
 Write-Host "CPU Count:"$CPU_count
@@ -103,6 +106,7 @@ Write-Host "CPU Cores:"$CPU_cores
 Write-Host "CPU vCPU:"$CPU_vCPU
 Write-Host "Total Memory:"$totalmemory"GB"
 
+write-host "**********************************************************"
 Write-Host "*** OS info:"
 Write-Host "OS:"$OSDescription
 Write-Host "Service Pack:"$OSServicePack
