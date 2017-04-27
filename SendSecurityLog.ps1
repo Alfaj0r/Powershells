@@ -3,7 +3,8 @@
 		Script Name: Send Security logs out 
 
 	.DESCRIPTION
-		Sends the Windows Log "Security" to a UNC destination
+		Sends the last 7 days of the Windows "Security" Log to a UNC destination
+		Written to address Washington State Gambling Commission's NSI 641
 
 	.PARAMETER  
 		Server list: CSV of just server names
@@ -22,11 +23,14 @@
 		)
 #EndRegion
 
-		
+
+
 		
 #Region ScriptWork
 	$CSV = get-content $ServerListCSV
 	$daysAgo = (Get-Date) - (New-TimeSpan -day 7) # 7 days
+
+# probably need to prompt for credentials to use to connect to other servers
 
 	foreach ($Machine in $CSV) {
 		[String]$Destination = "$DestinationUNCPath\$machine"+"_SecurityLog.csv"
